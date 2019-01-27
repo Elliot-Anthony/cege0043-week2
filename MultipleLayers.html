@@ -12,6 +12,72 @@ mNqn2Wg7tSToJhvHcqfzLMU6J4mkOImSPTxVZAdo+lcPlk+GhZmYgACEe0x35K7YzW1zJ7XyJV/TT1Mr
 "
 crossorigin=""></script>
 
+<!-- code that will run when you click on the button -->
+<script>
+function loadEarthquakeData() {
+alert("load the data here");
+}
+
+function removeEarthquakeData() {
+alert("remove the earthquake data here");
+}
+</script>
+
+<script >
+function loadEarthquakeData() {
+// call the getEarthquakes code
+// keep the alert message so that we know something is happening
+alert("Loading Earthquakes");
+getEarthquakes();
+}
+
+// create a variable that will hold the XMLHttpRequest() - this must be done outside a function so that all the functions can use the same variable
+var client;
+
+// create the code to get the Earthquakes data using an XMLHttpRequest
+function getEarthquakes() {
+client = new XMLHttpRequest();
+client.open('GET','https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_hour.geojson');
+client.onreadystatechange = earthquakeResponse; // note don't use earthquakeResponse() with brackets as that doesn't work
+client.send();
+}
+
+// create the code to wait for the response from the data server, and process the response once it is
+received
+function earthquakeResponse() {
+
+// this function listens out for the server to say that the data is ready - i.e. has state 4
+if (client.readyState == 4) {
+
+// once the data is ready, process the data
+var earthquakedata = client.responseText;
+loadEarthquakelayer(earthquakedata);
+}
+}
+
+// convert the received data - which is text - to JSON format and add it to the map
+
+function loadEarthquakelayer(earthquakedata) {
+// convert the text to JSON
+
+var earthquakejson = JSON.parse(earthquakedata);
+
+// add the JSON layer onto the map - it will appear using the default icons
+
+earthquakelayer = L.geoJson(earthquakejson).addTo(mymap);
+
+// change the map zoom so that all the data is shown
+mymap.fitBounds(earthquakelayer.getBounds());
+}
+
+var earthquakelayer;
+function removeEarthquakeData() {
+alert("Earthquake data will be removed");
+mymap.removeLayer( earthquakelayer );
+}
+
+</script>
+
 <!-- the following CSS is used to set the size of the Map -->
 <style type="text/css">
 #mapid { height: 180px; }
@@ -36,8 +102,11 @@ attribution: 'Map data &copy; <ahref="http://openstreetmap.org">OpenStreetMap</a
 'Imagery © <a href="http://mapbox.com">Mapbox</a>',id: 'mapbox.streets'}).addTo(mymap);
 </script>
 
-<button id="loadData" name="loadData" onclick="loadEarthquakeData()">Click here to load the
-data </button>
+<button id="loadData" name="loadData" onclick="loadEarthquakeData()">Click here to load the data 
+</button>
+
+<button id="removeEarthquakeData" name="removeEarthquakeData" onclick="removeEarthquakeData()">Click here to remove the Earthquake data 
+</button>
 
 </body>
 </html>
